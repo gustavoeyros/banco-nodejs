@@ -30,7 +30,7 @@ function operacoes(){
 
         }
         else if(action == 'Depositar'){
-
+            depositar()
         }
         else if(action == 'Sacar'){
 
@@ -43,6 +43,7 @@ function operacoes(){
 }
 
 
+//Criação da conta
 function criarConta(){
     console.log(chalk.bgGreen.black("Obrigado por escolher o nosso banco!"))
     console.log(chalk.green("Defina as opções da sua conta a seguir"))
@@ -62,10 +63,69 @@ function montarConta(){
             montarConta()
             return //caso já existir essa conta, ele irá retornar para a tela de criação novamente
         }
-        fs.writeFileSync(`contas/${nomeConta}.json`, '{saldo: 0}', function err(){ //vai criar a conta
+        fs.writeFileSync(`contas/${nomeConta}.json`, '{"saldo": 0}', function err(){ //vai criar a conta
             console.log(err)
         })
         console.log(chalk.green("Parabéns, sua conta foi criada com sucesso!"))
         operacoes() //volta para a tela inicial após criar a conta
     }).catch(err => console.log(err))
+}
+
+//Depositar valor na conta
+function depositar(){
+    inquirer.prompt([{
+        name: 'nomeConta',
+        message: 'Qual o nome da sua conta? '
+    }]).then(resposta => {
+        const nomeConta = resposta['nomeConta']
+        //verificar se a conta existe
+        if(!verificarConta(nomeConta)){
+            return depositar() //se a conta não existir, ela vai retornar para o depósito 
+        }
+        inquirer.prompt([{
+            name: 'valor',
+            message: 'Quanto você deseja depositar?'
+        }]).then(resposta => {
+            const valor = resposta['valor']
+            //adicionar valor
+            adicionarValor(nomeConta, valor)
+        }).catch(err => console.log(err))
+    }).catch(err => console.log(err))
+}
+
+//Adicionar valor
+function adicionarValor(nomeConta, valor){
+    const conta = pegarConta(nomeConta)
+    if(!valor){
+        console.log(chalk.bgRed.black("Ocorreu um erro, tente novamente!"))
+        return depositar()
+    }
+    conta.saldo = parseFloat(valor) + parseFloat(conta.saldo)
+
+//salvar as infos no bd
+fs.writeFileSync(`contas/${nomeConta}.json`,
+JSON.stringify(conta),
+function(err)
+{
+    console.log(err)
+})
+console.log(chalk.green(`Foi depositado o valor de R$${valor} na sua conta`))
+operacoes()
+}
+
+//Verificar se a conta existe
+function verificarConta(nomeConta){
+    if(!fs.existsSync(`contas/${nomeConta}.json`)){
+        console.log(chalk.bgRed.black("Essa conta não existe, escolha outro nome!"))
+        return false
+    }
+    return true
+}
+//Pegar conta
+function pegarConta(nomeConta){
+    const contaJSON = fs.readFileSync(`contas/${nomeConta}.json`, {
+        encoding: 'utf-8',
+        flag: 'r'
+    })
+    return JSON.parse(contaJSON)
 }
