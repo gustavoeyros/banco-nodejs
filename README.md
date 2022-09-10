@@ -23,7 +23,7 @@ npm start
 
 ## Resultado
 <img src="img/terminal.png">
-<br>
+
 
 ## Tecnologias
 - NodeJS
