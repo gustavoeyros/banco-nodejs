@@ -27,7 +27,7 @@ function operacoes(){
             criarConta()
         }
         else if(action == 'Consultar saldo'){
-
+            consultarSaldo()
         }
         else if(action == 'Depositar'){
             depositar()
@@ -112,6 +112,28 @@ function(err)
 console.log(chalk.green(`Foi depositado o valor de R$${valor} na sua conta`))
 operacoes()
 }
+
+//Consultar saldo
+function consultarSaldo(){
+    inquirer.prompt([{
+        name: 'nomeConta',
+        message: 'Qual o nome da sua conta? '
+    }]).then(resposta => {
+        const nomeConta = resposta['nomeConta']
+        if(!verificarConta(nomeConta)){
+            console.log(chalk.bgRed.black("Essa conta não existe! Tenta novamente"))
+            return consultarSaldo()
+        }
+        const conta = pegarConta(nomeConta)
+        console.log(chalk.bgBlue(`Olá! O saldo atual da sua conta é R$${conta.saldo}`))
+        operacoes()
+
+    }).catch(err => console.log(err))
+}
+
+
+
+
 
 //Verificar se a conta existe
 function verificarConta(nomeConta){
