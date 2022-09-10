@@ -5,11 +5,9 @@ Antes de tudo, é necessário ter o NodeJS e o NPM instalado em seu computador. 
 
 ---
 
-Abra o terminal no diretório em questão e execute os seguintes comandos:
+Abra o terminal no diretório em questão e execute o seguinte comando:
 
-```
-npm init
-```
+
 ```
 npm install
 ```
