@@ -33,7 +33,7 @@ function operacoes(){
             depositar()
         }
         else if(action == 'Sacar'){
-
+            sacar()
         }
         else if(action == 'Sair'){
             console.log(chalk.bgBlue('Obrigado por usar o nosso banco, até mais!'))
@@ -121,7 +121,6 @@ function consultarSaldo(){
     }]).then(resposta => {
         const nomeConta = resposta['nomeConta']
         if(!verificarConta(nomeConta)){
-            console.log(chalk.bgRed.black("Essa conta não existe! Tenta novamente"))
             return consultarSaldo()
         }
         const conta = pegarConta(nomeConta)
@@ -131,6 +130,28 @@ function consultarSaldo(){
     }).catch(err => console.log(err))
 }
 
+//Sacar valor
+function sacar(){
+    inquirer.prompt([{
+        name: 'nomeConta',
+        message: 'Digite o nome da sua conta: '
+    }]).then(resposta => {
+        const nomeConta = resposta['nomeConta']
+        if(!verificarConta(nomeConta)){
+            return sacar()
+        }
+
+        inquirer.prompt([{
+            name: 'valor',
+            message: 'Digite o valor que vocẽ deseja sacar: '
+        }]).then(resposta => {
+            const valor = resposta['valor']
+            removerValor(nomeConta, valor)
+        })
+    }).catch(err => console.log(err))
+
+  
+}
 
 
 
@@ -150,4 +171,25 @@ function pegarConta(nomeConta){
         flag: 'r'
     })
     return JSON.parse(contaJSON)
+}
+
+//Remover saldo
+function removerValor(nomeConta, valor){
+    const conta = pegarConta(nomeConta)
+    if(!valor){
+        console.log(chalk.bgRed.black("Ocorreu um erro! Tente novamente"))
+        return sacar()
+    }
+    if(conta.saldo<valor){
+        console.log(chalk.bgRed.black("O valor que você deseja sacar está indisponível"))
+        return sacar()
+    }
+    conta.saldo = parseFloat(conta.saldo) - parseFloat(valor)
+    fs.writeFileSync(`contas/${nomeConta}.json`,
+    JSON.stringify(conta), function(err){
+        console.log(err)
+    }
+    )
+    console.log(chalk.green(`Foi realizado um saque no valor de R$${valor} da sua conta!`))
+    operacoes()
 }
